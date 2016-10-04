@@ -1,0 +1,22 @@
+{
+    "name": "yangyao/php-crontab-schedule",
+    "description": "php-crontab-schedule",
+    "type": "library",
+    "require": {
+        "php": ">=5.4.45",
+        "yangyao/php-crontab-parser": "*",
+        "illuminate/database":"*"
+    },
+    "autoload":{
+        "psr-4":{
+            "Yangyao\\Crontab\\":"src/crontab/"
+        }
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "yangyao",
+            "email": "yangyaohappy@outlook.com"
+        }
+    ]
+}
