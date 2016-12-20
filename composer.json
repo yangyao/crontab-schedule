@@ -9,7 +9,7 @@
     },
     "autoload":{
         "psr-4":{
-            "Yangyao\\Crontab\\":"src/"
+            "Yangyao\\Crontab\\":"src/crontab/"
         }
     },
     "license": "MIT",
