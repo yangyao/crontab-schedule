@@ -5,6 +5,7 @@
     "require": {
         "php": ">=5.4.45",
         "yangyao/php-crontab-parser": "*",
+        "yangyao/php-task-queue":"*",
         "illuminate/database":"*"
     },
     "autoload":{
