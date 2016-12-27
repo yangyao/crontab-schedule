@@ -1,6 +1,6 @@
 <?php 
 
-namespace Yangyao\Handler;
+namespace Yangyao\Crontab\Handler;
 
 abstract class AbstractHandler
 {
@@ -28,5 +28,5 @@ abstract class AbstractHandler
      *
      * @return array
      */
-    public function update($cron_id , $timestamp = time()){}
+    public function update($cron_id , $timestamp){}
 }

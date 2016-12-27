@@ -1,6 +1,7 @@
 <?php 
 
 namespace Yangyao\Handler;
+use Yangyao\Crontab\Handler\AbstractHandler;
 use Illuminate\Database\Capsule\Manager as DB;  
 class EloquentHandler extends AbstractHandler
 {
@@ -13,7 +14,7 @@ class EloquentHandler extends AbstractHandler
             'host'     => 'localhost',
             'port'     => 3306,
             'dbname'   => 'crontab',
-            'username' => root,
+            'username' => 'root',
             'password' => '',
         ], $options);
         $this->table = $table;
@@ -30,7 +31,7 @@ class EloquentHandler extends AbstractHandler
         return DB::table($this->table)->get();
     }
 
-    public function update($cron_id , $timestamp = time()){
+    public function update($cron_id , $timestamp){
         return DB::table($this->table)->where('id',$cron_id)->update(['last'=>$timestamp]);
     }
 }

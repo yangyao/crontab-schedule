@@ -1,43 +1,43 @@
 <?php
 namespace Yangyao\Crontab;
 use Yangyao\Crontab\Parser;
-//TODO dependent on shopex queue 
+use Yangyao\Crontab\Handler\AbstractHandler;
+use Yangyao\Queue\Queue;
+use Yangyao\Queue\Contracts\Task;
 class Schedule{
-    private $hander;
-    public function __construct(AbstractHandler $hander){
-        $this->hander = $hander;
+    private $handler;
+    private $queue;
+    public function __construct(AbstractHandler $handler,Queue $queue){
+        $this->handler = $handler;
+        $this->queue = $queue;
     }
     public function trigger_one($cron_id){
-        if ($this->hander->get($cron_id)){
+        if ($cron = $this->handler->get($cron_id)){
             $now = time();
             if (($now - $cron['last'])<60) {
                 throw new \Exception('1分钟之内不能重复执行');
             }
             //add_task
             $worker = $cron['id'];
-            system_queue::instance()->publish('crontab:'.$worker, $worker);
-            self::__log($cron_id, $now, 'add queue ok');
-            $this->hander->update($cron_id,$now);
+            $this->queue->publish('crontab:'.$worker, $worker);
+            $this->handler->update($cron_id,$now);
         }
     }
 
     public function trigger_all(){
-        $cronentries =$this->hander->all();
+        $cronentries =$this->handler->all();
         ignore_user_abort(1);
         $now = time();
         $filter = array();
         foreach ($cronentries as $cron) {
             if ($now >= Parser::parse($cron['schedule'], $cron['last'])) {
-                //todo: base_queue::instance()->addTask()
-                //todo: update 变更为一次性更新
                 $worker = $cron['id'];
-                system_queue::instance()->publish('crontab:'.$worker, $worker);
+                $this->queue->publish('crontab:'.$worker, $worker);
                 $filter['id'][] = $cron['id'];
-                self::__log($cron['id'], $now, 'add queue ok');
             }
         }
         if (!empty($filter)) {
-            $this->hander->update($filter['id'],$now);
+            $this->handler->update($filter['id'],$now);
         }
     }
 
@@ -51,7 +51,7 @@ class Schedule{
      * @return bool
      */
     public function is_valid_cronentry($cron_id){
-        return $this->hander->get($cron_id);
+        return $this->handler->get($cron_id);
     }
 
 
@@ -65,26 +65,13 @@ class Schedule{
      * @return bool
      */
     static public function run_task($cron_id){
-        //set_error_handler(array(self, 'error_handler'));
-        $add_time = time();
         $class_name = $cron_id;
         $class = new $class_name();
-        if ($class instanceof base_interface_task) {
-            self::__log($cron_id, time(), 'run start');
+        if ($class instanceof Task) {
             $class->exec();
-            self::__log($cron_id, time(), 'run over');
             return true;
         }else{
-            self::__log($cron_id, time(), 'run fail: cannot find the call class');
             return false;
         }
-    }
-
-    static private function __log($cron_id, $add_time, $msg){
-        logger::info(sprintf("crontab task:%s add_time:%s | %s",
-                             $cron_id,
-                             //date("F j, Y, g:i a", $add_time),
-                             date('Y-m-d H:m:i', $add_time),
-                             $msg));
     }
 }
