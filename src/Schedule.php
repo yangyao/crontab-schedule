@@ -70,8 +70,7 @@ class Schedule{
         if ($class instanceof Task) {
             $class->exec();
             return true;
-        }else{
-            return false;
         }
+        return false;
     }
 }
